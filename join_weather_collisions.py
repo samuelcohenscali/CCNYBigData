@@ -6,6 +6,12 @@ import csv
 import datetime
 from dateutil.parser import parse
 
+'''
+This script is responsible for joining our scraped weather data with NYPC Collision
+Data. We join by DATETIME, using an hour-first approach. Given a collision at a specific time,
+we will join the soonest weather entry that corresponds with the hour that the collision occured at.
+'''
+
 def map_weather_hours(idx, part):
     if idx == 0:
         part.next()

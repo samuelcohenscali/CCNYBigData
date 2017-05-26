@@ -7,6 +7,9 @@ from pyspark.sql.types import StructType, StructField, StringType
 import pyspark.sql.functions as sf
 import csv
 
+'''
+This script normalizes location data with weather data
+'''
         
 if __name__=='__main__':
     sc = SparkContext()

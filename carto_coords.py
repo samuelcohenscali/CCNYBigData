@@ -6,7 +6,11 @@ from pyspark.sql.functions import col
 from pyspark.sql.types import StructType, StructField, StringType
 import csv
 
-
+'''
+This script is responsible of post-processing the joined data into data which CARTO 
+is able to parse and map onto geo-spatial mapping. This also filters out any
+collision entries that do not have a latitude/longitude listing.
+'''
 
 
         

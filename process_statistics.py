@@ -7,9 +7,14 @@ from pyspark.sql.functions import col
 from calendar import monthrange
 import json
 
+'''
+This script handles the main bulk of statistical data analysis of the joined dataset.
+This script goes through the entire dataset to extract key metrics that give us 
+valuable information on the statistical significance of particular inclement weather
+conditions and the collision, injury, and death rates per month and year.
+'''
 
-
-
+# Months function used for JSON output.
 def months(x):
     month = {1:"January",
              2:"Feburary",

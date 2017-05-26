@@ -3,8 +3,10 @@ from pyspark.sql import SQLContext
 from pyspark.sql import Row
 import csv
 from dateutil.parser import parse
-
-
+'''
+This script is to modify collision datetime row to convert their 
+DATE and TIME columns into DATETIME for joining purposes
+'''
 def fn(idx, part):
     if idx == 0:
         part.next()

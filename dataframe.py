@@ -50,7 +50,7 @@ def fn(idx, part):
 if __name__ == '__main__':
     sc = SparkContext()
     sqlContext = SQLContext(sc)
-    # Gather Citibike Data
+    # Gather collision Data
     rows = sc.textFile('hdfs:///user/dzeng01/project/NYPD_Motor_Vehicle_Collisions.csv')
 
     newrdd = rows.mapPartitionsWithIndex(fn)

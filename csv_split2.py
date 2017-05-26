@@ -5,6 +5,9 @@ from pyspark.sql import Row
 from pyspark.sql.types import IntegerType
 from pyspark.sql.functions import col
 
+'''
+Utility script. Simply used to split up CSV's on CUSP.
+'''
 
 if __name__ == '__main__':
     sc = SparkContext()

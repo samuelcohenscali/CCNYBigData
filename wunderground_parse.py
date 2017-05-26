@@ -3,6 +3,12 @@ from bs4 import BeautifulSoup
 import csv
 import datetime
 
+'''
+This script is NOT a Spark file. This script was used to scrape weather information
+from Weather Underground for a given range of years. This is considered part
+of the pre-processing stage of the project.
+'''
+
 start_year = 2011
 end_year = 2017
 filename = 'wunderground_{0}-{1}.csv'.format(start_year, end_year)

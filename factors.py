@@ -5,6 +5,11 @@ from pyspark.sql import Row
 from pyspark.sql.types import IntegerType
 from pyspark.sql.functions import col
 
+'''
+This script is to filter out certain conditions and the NYPD contributing factors for each.
+The results are collected from STDOUT on the NYU CUSP Cluster.
+'''
+
 if __name__ == '__main__':
 	sc = SparkContext()
 	spark = SparkSession(sc)

@@ -8,6 +8,12 @@ import csv
 import datetime
 from dateutil.parser import parse
 
+'''
+This script is responsible for splitting the main joined weather data 
+into years for partitioned processing (as well as to reduce overhead 
+on both local and cluster memory requirements)
+'''
+
 def filter_year(x):
     return x.split("-")[0]
 
