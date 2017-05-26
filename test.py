@@ -637,96 +637,7 @@ if __name__ == '__main__':
 
 
 
-        # Inclement Weather Statistics
-        stats['Inclement Weather'] = {}
-        i_arr = [] # Inclement Weather Collision Data
-        ii_arr = [] # Inclement Weather Collision Injury Data
-        di_arr = [] # Inclement Weather Collision Death Data
 
-        """PREPROCESSING"""
-        # Inclement Weather Collision Data Query
-        for x in range(1,13):
-            date = "20{1}-0{0}%".format(x, yr) if x < 10 else "20{1}-{0}%".format(x, yr)
-            query = 'select * from df where (Rain="1" or Snow="1" or Freezing="1" or LowVisibility="1" or Windy="1") and DATETIME like "{0}"'.format(date)
-            sq = sqlContext.sql(query)
-            i_arr.append((x, sq.count()))
-            sq.unpersist()
-        inclement_total = sum([x[1] for x in i_arr])
-
-        # Inclement Weather Collision Injury Data Query
-        for x in range(1,13):
-            date = "20{1}-0{0}%".format(x, yr) if x < 10 else "20{1}-{0}%".format(x, yr)
-            query = 'select * from df where (Rain="1" or Snow="1" or Freezing="1" or LowVisibility="1" or Windy="1") and DATETIME like "{0}" and ( \
-                                                                    NUMBER_OF_CYCLIST_INJURED!=0 or \
-                                                                    NUMBER_OF_MOTORIST_INJURED!=0 or \
-                                                                    NUMBER_OF_PEDESTRIANS_INJURED!=0)'.format(date)
-            df_injs = sqlContext.sql(query)
-            cyclist = map(lambda x: (int(x[0]), x[1]), df_injs.groupBy("NUMBER_OF_CYCLIST_INJURED").count().orderBy('count', ascending=False).collect())
-            motorist = map(lambda x: (int(x[0]), x[1]), df_injs.groupBy("NUMBER_OF_MOTORIST_INJURED").count().orderBy('count', ascending=False).collect())
-            pedestrian = map(lambda x: (int(x[0]), x[1]), df_injs.groupBy("NUMBER_OF_PEDESTRIANS_INJURED").count().orderBy('count', ascending=False).collect())
-            ii_arr.append((x, df_injs.count(), {"Cyclist": cyclist, "Motorist": motorist, "Pedestrians": pedestrian}))
-            df_injs.unpersist()
-        inclement_injury_total = sum([x[1] for x in ii_arr])
-        inclement_injury_persons_total = sum([sum(map(lambda a: a[0]*a[1], x[2]['Cyclist'])) + sum(map(lambda a: a[0]*a[1], x[2]['Motorist'])) + sum(map(lambda a: a[0]*a[1], x[2]['Pedestrians'])) for x in ii_arr])
-
-        # Inclement Weather Collision Death Data Query
-        for x in range(1,13):
-            date = "20{1}-0{0}%".format(x, yr) if x < 10 else "20{1}-{0}%".format(x, yr)
-            query = 'select * from df where (Rain="1" or Snow="1" or Freezing="1" or LowVisibility="1" or Windy="1") and DATETIME like "{0}" and ( \
-                                                                    NUMBER_OF_CYCLIST_KILLED!=0 or \
-                                                                    NUMBER_OF_MOTORIST_KILLED!=0 or \
-                                                                    NUMBER_OF_PEDESTRIANS_KILLED!=0)'.format(date)
-            df_deths = sqlContext.sql(query)
-            cyclist = map(lambda x: (int(x[0]), x[1]), df_deths.groupBy("NUMBER_OF_CYCLIST_KILLED").count().orderBy('count', ascending=False).collect())
-            motorist = map(lambda x: (int(x[0]), x[1]), df_deths.groupBy("NUMBER_OF_MOTORIST_KILLED").count().orderBy('count', ascending=False).collect())
-            pedestrian = map(lambda x: (int(x[0]), x[1]), df_deths.groupBy("NUMBER_OF_PEDESTRIANS_KILLED").count().orderBy('count', ascending=False).collect())
-            di_arr.append((x, df_deths.count(), {"Cyclist": cyclist, "Motorist": motorist, "Pedestrians": pedestrian}))
-            df_deths.unpersist()
-
-        inclement_death_total = sum([x[1] for x in di_arr])
-        inclement_death_persons_total = sum([sum(map(lambda a: a[0]*a[1], x[2]['Cyclist'])) + sum(map(lambda a: a[0]*a[1], x[2]['Motorist'])) + sum(map(lambda a: a[0]*a[1], x[2]['Pedestrians'])) for x in di_arr])
-
-
-
-
-        # Statistics Deriving
-        stats['Inclement Weather']['Total Number of Persons Injured in Collision w/ Inclement Weather'] = inclement_injury_persons_total
-        stats['Inclement Weather']['Total Number of Persons Killed in Collision w/ Inclement Weather'] = inclement_death_persons_total
-        stats['Inclement Weather']['Total Number of Persons Injured in Collision w/ Inclement Weather Per Month'] = [str(
-                                                                            (months(x+1), sum(map(lambda a: a[0]*a[1], ii_arr[x][2]['Cyclist'])) + 
-                                                                                          sum(map(lambda a: a[0]*a[1], ii_arr[x][2]['Motorist'])) + 
-                                                                                          sum(map(lambda a: a[0]*a[1], ii_arr[x][2]['Pedestrians'])))
-                                                                            ) for x in range(0,12)]    
-        stats['Inclement Weather']['Total Number of Persons Killed in Collision w/ Inclement Weather Per Month'] = [str(
-                                                                            (months(x+1), sum(map(lambda a: a[0]*a[1], di_arr[x][2]['Cyclist'])) + 
-                                                                                          sum(map(lambda a: a[0]*a[1], di_arr[x][2]['Motorist'])) + 
-                                                                                          sum(map(lambda a: a[0]*a[1], di_arr[x][2]['Pedestrians'])))
-                                                                            ) for x in range(0,12)]    
-        stats['Inclement Weather']['Total Number of Collisions w/ Injury & Inclement Weather in Year'] = inclement_injury_total
-        stats['Inclement Weather']['Total Number of Collisions w/ Death & Inclement Weather in Year'] = inclement_death_total
-        stats['Inclement Weather']['Injury Rate w/ Inclement Weather (Year %)'] = float(inclement_injury_total)/float(inclement_total) * 100.00
-        stats['Inclement Weather']['Death Rate w/ Inclement Weather (Year %)'] = float(inclement_death_total)/float(inclement_total) * 100.00
-        stats['Inclement Weather']['Total Number of Inclement Weather Collisions in Year'] = inclement_total
-        stats['Inclement Weather']['Percent of Collisions in Inclement Weather Over Year (%)'] = (float(inclement_total) / float(total)) * 100.00
-        stats['Inclement Weather']['Collisions in Inclement Weather'] = [str(
-                                            (months(x+1), i_arr[x][1])
-                                            ) for x in range(0,12)]
-        stats['Inclement Weather']['Average Collisions in Inclement Weather Per Month'] = inclement_total//12
-        stats['Inclement Weather']['Number of Collisions w/ Injuries and Inclement Weather Per Month'] = [str(
-                                                                                (months(x+1), ii_arr[x][1])
-                                                                                ) for x in range(0,12)]
-        stats['Inclement Weather']['Number of Collisions w/ Deaths and Inclement Weather Per Month'] = [str(
-                                                                                (months(x+1), di_arr[x][1])
-                                                                                ) for x in range(0,12)]
-        stats['Inclement Weather']['Percent of Collisions in Each Month That Are Inclement Weather Collisions (Inclement Weather %)'] = [str(
-                                                                (months(x+1), round((float(i_arr[x][1])/float(m_arr[x][1]))*100.0, 2))
-                                                                ) for x in range(0,12) if m_arr[x][1] != 0]
-        stats['Inclement Weather']['Injury Rate Per Month w/ Inclement Weather (Month %)'] = [str(
-                                                                (months(x+1), round((float(ii_arr[x][1])/float(i_arr[x][1]) * 100.00),2))
-                                                                ) for x in range(0,12) if i_arr[x][1] != 0]
-        stats['Inclement Weather']['Death Rate Per Month w/ Inclement Weather (Month %)'] = [str(
-                                                                (months(x+1), round((float(di_arr[x][1])/float(i_arr[x][1]) * 100.00),2))
-                                                                ) for x in range(0,12) if i_arr[x][1] != 0]
 
 
 
@@ -735,9 +646,12 @@ if __name__ == '__main__':
         json_results = json.dumps(stats, indent=4, sort_keys=True)
         #print json_results
         path = "hdfs:///user/dzeng01/project/statistical_results_20{0}".format(yr)
-        sc.parallelize([json_results]).coalesce(1).saveAsTextFile(path)
+        sc.parallelize([json_results]).saveAsTextFile(path)
 
 
         # Finished with year processing. Clear and move on.
         sqlContext.dropTempTable('df')
         df.unpersist()
+
+
+
